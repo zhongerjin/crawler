@@ -50,6 +50,8 @@ module.exports = class Brower{
             let options = {
                 url: value
             };
+            let images_dir = path.join(__dirname, `images`);
+            fs.existsSync(images_dir)? null: fs.mkdir(images_dir);
             let folderName = this.$("#activity-name").text().trim();
             const dir = path.join(__dirname, `images`, folderName);
             fs.existsSync(dir)? null: fs.mkdir(dir);
