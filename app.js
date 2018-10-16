@@ -26,5 +26,5 @@ const { newBrower } = require('./service');
     javascriptDelay: 10000 // to avoid: Warning: Received createRequest signal on a disposed ResourceObject's NetworkAccessManager. This might be an indication of an iframe taking too long to load.
   }
   const outFile = path.join(__dirname, `out.pdf`);
-  await exportHtml(result.join(), outFile);
+  await exportHtml(result.join(), outFile, options);
 })();
