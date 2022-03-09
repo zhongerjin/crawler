@@ -4,27 +4,17 @@ const brower = require('./brower');
 const { newBrower } = require('./service');
 
 (async function() {
+  let article_arr = [
+                  'https://mp.weixin.qq.com/s/mZeuVB6lpXQ1yKNULeG5tw',
+                  'https://mp.weixin.qq.com/s/xoYQeUhNSxXhAc3_l9xRJA'
+                  ];
   let result = [];
-  let src_arr = ['https://mp.weixin.qq.com/s/rreH3DsirOQVfc8Q9H2nhQ','https://mp.weixin.qq.com/s/k4cUnSqV0hVgOWpBi6SWGw'];
-  result = [].concat(await newBrower(src_arr));
-  let xsl_dir = path.join(__dirname, `main.xsl`);
-  const options = {
-    // dpi,
-    s:'A4',
-    pageSize: 'letter',
-    ignore: [
-      /QFont::setPixelSize/,
-      /Warning: Received createRequest signal/,
-      /SSL/
-    ],
-    toc:true,
-    debug: true,
-    "footer-center": "[page]",
-    encoding: 'UTF-8',
-    disableSmartShrinking: true,
-    xslStyleSheet: xsl_dir,
-    javascriptDelay: 10000 // to avoid: Warning: Received createRequest signal on a disposed ResourceObject's NetworkAccessManager. This might be an indication of an iframe taking too long to load.
-  }
-  const outFile = path.join(__dirname, `out.pdf`);
-  await exportHtml(result.join(), outFile, options);
+
+  result = [...await newBrower(article_arr)];
+  const date = new Date();
+  const toPadStart2 = str => str.padStart(2, '0');  //单位数补上0
+  const outFileName = `${date.getFullYear()}${toPadStart2(`${date.getMonth() + 1}`)}${toPadStart2(`${date.getDate()}`)}
+                      ${date.getHours()}${date.getMinutes()}${date.getSeconds()}.pdf`
+  const outFile = path.join(__dirname, outFileName);
+  await exportHtml(result.join(), outFile);
 })();

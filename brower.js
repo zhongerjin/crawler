@@ -2,7 +2,8 @@ const phantom = require('phantom');
 const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
-const { downImg } = require('./downImg');
+const { downImg, mkdirFile } = require('./writer');
+const imagesName = 'images';  //图片文件夹名字
 
 module.exports = class Brower{
     constructor(){
@@ -40,25 +41,34 @@ module.exports = class Brower{
     async fetchImageUrl(regExp){
         // const patt = /<img[^>]+src=['"]([^'"]+)['"]+/g;
         const patt = new RegExp(regExp, 'g');
-        let src_arr = [];
-        let src_result = [];
+        let srcList = [];
+        // let src_result = [];
+        let existFolder = [];
         let temp;
+        //获取所有图片链接
         while((temp = patt.exec(this.result)) !== null){
-            src_arr.push(temp[1]);
+            srcList.push(temp[1]);
         }
-        await Promise.all(src_arr.map(async (value, index) => {
+        //新建图片文件夹
+        const imagesFolder = path.join(__dirname, imagesName);
+        await mkdirFile(imagesFolder)
+
+        await Promise.all(srcList.map(async (value, index) => {
             let options = {
                 url: value
             };
-            let images_dir = path.join(__dirname, `images`);
-            fs.existsSync(images_dir)? null: fs.mkdir(images_dir);
-            let folderName = this.$("#activity-name").text().trim();
-            const dir = path.join(__dirname, `images`, folderName);
-            fs.existsSync(dir)? null: fs.mkdir(dir);
-            let paths = path.join(dir, `${index}.jpg`);
-            await downImg(options, paths);
-            // src_result.push({value, paths});
-            this.result = this.result.replace(value, paths);
+            const articleFolderName = this.$('#activity-name').text().trim();  //文章标题
+            const articleFolderDir = path.join(imagesFolder, articleFolderName);  //文章文件夹的目录
+
+            if(!existFolder.includes(articleFolderName)){
+                existFolder.push(articleFolderName);
+                await mkdirFile(articleFolderDir);
+            }
+
+            const articleImageDir = path.join(articleFolderDir, `${index}.jpg`);
+            await downImg(options, articleImageDir);  //下载图片
+            // src_result.push({value, articleImageDir});
+            this.result = this.result.replace(value, articleImageDir);  //将<img>原本中的图片路径改为本地
           })
         )
         return this.result;

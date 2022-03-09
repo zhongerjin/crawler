@@ -12,3 +12,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 out.pdf
+images
+.history
+*.pdf
